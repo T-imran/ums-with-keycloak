@@ -2,6 +2,7 @@ package com.erainfotech.ums.security;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -15,10 +16,12 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 public class KeycloakJwtRolesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
-    private final String resourceClientId;
+    private final Set<String> roleSourceClients;
 
-    public KeycloakJwtRolesConverter(String resourceClientId) {
-        this.resourceClientId = resourceClientId;
+    public KeycloakJwtRolesConverter(List<String> roleSourceClients) {
+        this.roleSourceClients = roleSourceClients == null
+                ? Collections.emptySet()
+                : new HashSet<>(roleSourceClients);
     }
 
     @Override
@@ -51,25 +54,33 @@ public class KeycloakJwtRolesConverter implements Converter<Jwt, Collection<Gran
     @SuppressWarnings("unchecked")
     private Collection<GrantedAuthority> extractResourceRoles(Jwt jwt) {
         Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
-        if (resourceAccess == null || !resourceAccess.containsKey(resourceClientId)) {
+        if (resourceAccess == null || resourceAccess.isEmpty()) {
             return Collections.emptySet();
         }
 
-        Object clientAccessObj = resourceAccess.get(resourceClientId);
-        if (!(clientAccessObj instanceof Map<?, ?> clientAccess)) {
-            return Collections.emptySet();
+        Set<GrantedAuthority> authorities = new LinkedHashSet<>();
+        for (Map.Entry<String, Object> entry : resourceAccess.entrySet()) {
+            if (!roleSourceClients.isEmpty() && !roleSourceClients.contains(entry.getKey())) {
+                continue;
+            }
+
+            if (!(entry.getValue() instanceof Map<?, ?> clientAccess)) {
+                continue;
+            }
+
+            Object roles = clientAccess.get("roles");
+            if (!(roles instanceof List<?> roleList)) {
+                continue;
+            }
+
+            for (Object role : roleList) {
+                if (role instanceof String roleName) {
+                    authorities.add(toAuthority(roleName));
+                }
+            }
         }
 
-        Object roles = clientAccess.get("roles");
-        if (!(roles instanceof List<?> roleList)) {
-            return Collections.emptySet();
-        }
-
-        return roleList.stream()
-                .filter(String.class::isInstance)
-                .map(String.class::cast)
-                .map(this::toAuthority)
-                .toList();
+        return authorities;
     }
 
     private GrantedAuthority toAuthority(String role) {

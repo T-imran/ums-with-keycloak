@@ -1,6 +1,6 @@
 spring:
   application:
-    name: ums
+    name: iam-admin-service
   jackson:
     serialization:
       write-dates-as-timestamps: false
@@ -8,28 +8,13 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/ums}
-          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8080/realms/ums/protocol/openid-connect/certs}
-
-  datasource:
-    url: jdbc:postgresql://localhost:5432/ums
-    username: postgres
-    password: imran1234
-    driver-class-name: org.postgresql.Driver
-
-    jpa:
-      hibernate:
-        ddl-auto: update
-      show-sql: true
-      properties:
-        hibernate:
-          format_sql: true
-          dialect: org.hibernate.dialect.PostgreSQLDialect
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:${KEYCLOAK_SERVER_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:bank-asia}}
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:${KEYCLOAK_SERVER_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:bank-asia}/protocol/openid-connect/certs}
 
 server:
   port: 8081
   servlet:
-    context-path: /ums
+    context-path: /iam-admin-service
   error:
     include-message: never
 
@@ -45,17 +30,23 @@ management:
 
 app:
   security:
-    resource-client-id: ${KEYCLOAK_RESOURCE_CLIENT_ID:ums-api}
+    role-source-clients:
+      - ${KEYCLOAK_UMS_UI_CLIENT_ID:ums-ui}
+      - ${KEYCLOAK_LMS_UI_CLIENT_ID:lms-ui}
   keycloak:
     auth:
-      realm: ${KEYCLOAK_AUTH_REALM:ums}
-      client-id: ${KEYCLOAK_AUTH_CLIENT_ID:ums-frontend}
-      client-secret: ${KEYCLOAK_AUTH_CLIENT_SECRET:change-me}
+      server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8080}
+      realm: ${KEYCLOAK_REALM:bank-asia}
+      clients:
+        ums-ui:
+          client-id: ${KEYCLOAK_UMS_UI_CLIENT_ID:ums-admin-app}
+        lms-ui:
+          client-id: ${KEYCLOAK_LMS_UI_CLIENT_ID:lms-app}
     admin:
       server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8080}
+      realm: ${KEYCLOAK_REALM:bank-asia}
       admin-realm: ${KEYCLOAK_ADMIN_REALM:master}
-      managed-realm: ${KEYCLOAK_MANAGED_REALM:ums}
-      client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:admin-cli}
+      client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:iam-admin-service}
       client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:change-me}
 
 logging:

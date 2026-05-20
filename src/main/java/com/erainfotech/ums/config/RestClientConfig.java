@@ -9,6 +9,9 @@ public class RestClientConfig {
 
     @Bean
     RestClient keycloakRestClient(RestClient.Builder builder, KeycloakAdminProperties properties) {
-        return builder.baseUrl(properties.serverUrl()).build();
+        return builder
+                .baseUrl(properties.serverUrl())
+                .defaultHeader("Accept", "application/json")
+                .build();
     }
 }

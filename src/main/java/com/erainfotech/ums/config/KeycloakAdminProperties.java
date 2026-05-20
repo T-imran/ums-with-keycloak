@@ -8,8 +8,8 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "app.keycloak.admin")
 public record KeycloakAdminProperties(
         @NotBlank String serverUrl,
+        @NotBlank String realm,
         @NotBlank String adminRealm,
-        @NotBlank String managedRealm,
         @NotBlank String clientId,
         @NotBlank String clientSecret
 ) {

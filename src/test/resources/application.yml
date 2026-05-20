@@ -1,30 +1,28 @@
 spring:
-  datasource:
-    url: jdbc:h2:mem:ums;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  jpa:
-    hibernate:
-      ddl-auto: none
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8080/realms/test
-          jwk-set-uri: http://localhost:8080/realms/test/protocol/openid-connect/certs
+          issuer-uri: http://localhost:8080/realms/bank-asia
+          jwk-set-uri: http://localhost:8080/realms/bank-asia/protocol/openid-connect/certs
 
 app:
   security:
-    resource-client-id: ums-api
+    role-source-clients:
+      - ums-ui
+      - lms-ui
   keycloak:
     auth:
-      realm: ums
-      client-id: ums-frontend
-      client-secret: test-secret
+      server-url: http://localhost:8080
+      realm: bank-asia
+      clients:
+        ums-ui:
+          client-id: ums-ui
+        lms-ui:
+          client-id: lms-ui
     admin:
       server-url: http://localhost:8080
+      realm: bank-asia
       admin-realm: master
-      managed-realm: ums
-      client-id: admin-cli
+      client-id: iam-admin-service
       client-secret: test-secret

@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -28,6 +27,7 @@ public class SecurityConfig {
                                             RestAuthenticationEntryPoint authenticationEntryPoint,
                                             RestAccessDeniedHandler accessDeniedHandler) throws Exception {
         http
+                .cors(cors -> {})
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
@@ -36,7 +36,7 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/me").authenticated()
-                        .requestMatchers("/api/v1/admin/**").authenticated()
+                        .requestMatchers("/api/v1/users/**", "/api/v1/roles/**", "/api/v1/clients/**").authenticated()
                         .anyRequest().authenticated())
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(authenticationEntryPoint)
@@ -52,21 +52,18 @@ public class SecurityConfig {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setPrincipalClaimName("preferred_username");
         converter.setJwtGrantedAuthoritiesConverter(
-                new KeycloakJwtRolesConverter(appSecurityProperties.resourceClientId()));
+                new KeycloakJwtRolesConverter(appSecurityProperties.roleSourceClients()));
         return converter;
     }
 
     @Bean
-    JwtDecoder jwtDecoder(OAuth2ResourceServerProperties properties,
-                          AppSecurityProperties appSecurityProperties) {
+    JwtDecoder jwtDecoder(OAuth2ResourceServerProperties properties) {
         String issuerUri = properties.getJwt().getIssuerUri();
         String jwkSetUri = properties.getJwt().getJwkSetUri();
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
 
         OAuth2TokenValidator<Jwt> issuerValidator = JwtValidators.createDefaultWithIssuer(issuerUri);
-        OAuth2TokenValidator<Jwt> audienceValidator =
-                new AudienceValidator(appSecurityProperties.resourceClientId());
-        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(issuerValidator, audienceValidator));
+        decoder.setJwtValidator(issuerValidator);
 
         return decoder;
     }
