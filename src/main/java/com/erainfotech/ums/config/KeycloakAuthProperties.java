@@ -3,6 +3,7 @@ package com.erainfotech.ums.config;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.Map;
+import java.util.Objects;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
@@ -20,6 +21,14 @@ public record KeycloakAuthProperties(
         }
 
         PublicClientProperties client = clients.get(clientId);
+        if (client == null) {
+            client = clients.values().stream()
+                    .filter(Objects::nonNull)
+                    .filter(configuredClient -> clientId.equals(configuredClient.clientId()))
+                    .findFirst()
+                    .orElse(null);
+        }
+
         if (client == null || client.clientId() == null || client.clientId().isBlank()) {
             throw new IllegalArgumentException("Unsupported clientId: " + clientId);
         }
