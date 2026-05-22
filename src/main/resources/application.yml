@@ -45,9 +45,9 @@ app:
     admin:
       server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8080}
       realm: ${KEYCLOAK_REALM:bank-asia}
-      admin-realm: ${KEYCLOAK_ADMIN_REALM:master}
+      admin-realm: ${KEYCLOAK_ADMIN_REALM:bank-asia}
       client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:iam-admin-service}
-      client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:EeGsUtNfbW2TtPeDyLzEnIzchOqUtcYY}
+      client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:jrA8viBZT4T3IKseSXwrUJo6alcIZAU2}
 
 logging:
   level:
