@@ -47,7 +47,7 @@ app:
       realm: ${KEYCLOAK_REALM:bank-asia}
       admin-realm: ${KEYCLOAK_ADMIN_REALM:bank-asia}
       client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:iam-admin-service}
-      client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:jrA8viBZT4T3IKseSXwrUJo6alcIZAU2}
+      client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:EsTcO7qo4tmbqrLBA4o96kFEdq7THT3c}
 
 logging:
   level:
