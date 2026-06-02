@@ -6,7 +6,7 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 @ConfigurationProperties(prefix = "app.keycloak.admin")
-public record KeycloakAdminProperties(
+public record IdentityAdminProperties(
         @NotBlank String serverUrl,
         @NotBlank String realm,
         @NotBlank String adminRealm,

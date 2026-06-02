@@ -1,6 +1,6 @@
 package com.erainfotech.ums.client.keycloak;
 
-public record KeycloakCredentialRepresentation(
+public record IdentityProviderCredentialRepresentation(
         String type,
         String value,
         boolean temporary

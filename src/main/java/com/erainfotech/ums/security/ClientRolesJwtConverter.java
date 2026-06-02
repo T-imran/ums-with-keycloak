@@ -14,11 +14,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-public class KeycloakJwtRolesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
+public class ClientRolesJwtConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
     private final Set<String> roleSourceClients;
 
-    public KeycloakJwtRolesConverter(List<String> roleSourceClients) {
+    public ClientRolesJwtConverter(List<String> roleSourceClients) {
         this.roleSourceClients = roleSourceClients == null
                 ? Collections.emptySet()
                 : new HashSet<>(roleSourceClients);

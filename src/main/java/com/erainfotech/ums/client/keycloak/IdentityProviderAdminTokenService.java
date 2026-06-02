@@ -1,6 +1,6 @@
 package com.erainfotech.ums.client.keycloak;
 
-import com.erainfotech.ums.config.KeycloakAdminProperties;
+import com.erainfotech.ums.config.IdentityAdminProperties;
 import com.erainfotech.ums.exception.IntegrationException;
 import java.time.Clock;
 import java.time.Instant;
@@ -14,12 +14,12 @@ import org.springframework.web.client.RestClient;
 
 @Service
 @RequiredArgsConstructor
-public class KeycloakAdminTokenService {
+public class IdentityProviderAdminTokenService {
 
     private static final long DEFAULT_EXPIRY_SKEW_SECONDS = 30L;
 
     private final RestClient keycloakRestClient;
-    private final KeycloakAdminProperties properties;
+    private final IdentityAdminProperties properties;
     private final Clock clock = Clock.systemUTC();
 
     private final Object monitor = new Object();
@@ -56,12 +56,12 @@ public class KeycloakAdminTokenService {
         form.add("client_secret", properties.clientSecret());
 
         try {
-            KeycloakTokenResponse response = keycloakRestClient.post()
+            IdentityProviderTokenResponse response = keycloakRestClient.post()
                     .uri("/realms/{realm}/protocol/openid-connect/token", properties.adminRealm())
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .body(form)
                     .retrieve()
-                    .body(KeycloakTokenResponse.class);
+                    .body(IdentityProviderTokenResponse.class);
 
             if (response == null || response.accessToken() == null || response.accessToken().isBlank()) {
                 throw new IntegrationException("Keycloak admin token response was empty.");

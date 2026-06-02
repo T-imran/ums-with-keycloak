@@ -1,6 +1,6 @@
 package com.erainfotech.ums.client.keycloak;
 
-import com.erainfotech.ums.config.KeycloakAdminProperties;
+import com.erainfotech.ums.config.IdentityAdminProperties;
 import com.erainfotech.ums.exception.IntegrationException;
 import java.net.URI;
 import java.util.function.Supplier;
@@ -12,14 +12,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriBuilder;
 
 @Service
 @RequiredArgsConstructor
-public class KeycloakAdminClientService {
+public class IdentityProviderAdminClientService {
 
     private final RestClient keycloakRestClient;
-    private final KeycloakAdminProperties properties;
-    private final KeycloakAdminTokenService keycloakAdminTokenService;
+    private final IdentityAdminProperties properties;
+    private final IdentityProviderAdminTokenService keycloakAdminTokenService;
 
     public String realm() {
         return properties.realm();
@@ -36,6 +37,14 @@ public class KeycloakAdminClientService {
     public <T> T get(String path, ParameterizedTypeReference<T> bodyType, Object... uriVariables) {
         return execute(path, () -> keycloakRestClient.get()
                 .uri(path, uriVariables)
+                .header(HttpHeaders.AUTHORIZATION, bearerToken())
+                .retrieve()
+                .body(bodyType));
+    }
+
+    public <T> T get(java.util.function.Function<UriBuilder, URI> uriFunction, ParameterizedTypeReference<T> bodyType) {
+        return execute("dynamic-uri", () -> keycloakRestClient.get()
+                .uri(uriFunction)
                 .header(HttpHeaders.AUTHORIZATION, bearerToken())
                 .retrieve()
                 .body(bodyType));

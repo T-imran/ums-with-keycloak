@@ -1,7 +1,7 @@
 package com.erainfotech.ums.service;
 
-import com.erainfotech.ums.client.keycloak.KeycloakAdminClientService;
-import com.erainfotech.ums.client.keycloak.KeycloakClientRepresentation;
+import com.erainfotech.ums.client.keycloak.IdentityProviderAdminClientService;
+import com.erainfotech.ums.client.keycloak.IdentityProviderClientRepresentation;
 import com.erainfotech.ums.dto.ClientResponse;
 import com.erainfotech.ums.dto.CreateClientRequest;
 import com.erainfotech.ums.dto.UpdateClientRequest;
@@ -22,9 +22,9 @@ public class ClientAdminService {
 
     private static final Pattern CLIENT_ID_PATTERN = Pattern.compile(".*/clients/([^/]+)$");
 
-    private final KeycloakAdminClientService keycloakAdminClientService;
+    private final IdentityProviderAdminClientService keycloakAdminClientService;
 
-    public ClientAdminService(KeycloakAdminClientService keycloakAdminClientService) {
+    public ClientAdminService(IdentityProviderAdminClientService keycloakAdminClientService) {
         this.keycloakAdminClientService = keycloakAdminClientService;
     }
 
@@ -52,7 +52,7 @@ public class ClientAdminService {
 
     public List<ClientResponse> listClients(String clientId) {
         String effectiveClientId = clientId == null ? "" : clientId;
-        List<KeycloakClientRepresentation> clients = keycloakAdminClientService.get(
+        List<IdentityProviderClientRepresentation> clients = keycloakAdminClientService.get(
                 "/admin/realms/{realm}/clients?clientId={clientId}",
                 new ParameterizedTypeReference<>() {
                 },
@@ -67,7 +67,7 @@ public class ClientAdminService {
     }
 
     public ClientResponse updateClient(String clientId, UpdateClientRequest request) {
-        KeycloakClientRepresentation existing = findByClientId(clientId);
+        IdentityProviderClientRepresentation existing = findByClientId(clientId);
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("id", existing.id());
         body.put("clientId", existing.clientId());
@@ -92,10 +92,10 @@ public class ClientAdminService {
         return toResponse(findByClientId(clientId));
     }
 
-    private KeycloakClientRepresentation getClientByInternalId(String internalId) {
-        KeycloakClientRepresentation client = keycloakAdminClientService.get(
+    private IdentityProviderClientRepresentation getClientByInternalId(String internalId) {
+        IdentityProviderClientRepresentation client = keycloakAdminClientService.get(
                 "/admin/realms/{realm}/clients/{internalId}",
-                KeycloakClientRepresentation.class,
+                IdentityProviderClientRepresentation.class,
                 keycloakAdminClientService.realm(),
                 internalId);
 
@@ -105,8 +105,8 @@ public class ClientAdminService {
         return client;
     }
 
-    private KeycloakClientRepresentation findByClientId(String clientId) {
-        List<KeycloakClientRepresentation> clients = keycloakAdminClientService.get(
+    private IdentityProviderClientRepresentation findByClientId(String clientId) {
+        List<IdentityProviderClientRepresentation> clients = keycloakAdminClientService.get(
                 "/admin/realms/{realm}/clients?clientId={clientId}",
                 new ParameterizedTypeReference<>() {
                 },
@@ -123,7 +123,7 @@ public class ClientAdminService {
                 .orElseThrow(() -> new ResourceNotFoundException("Keycloak client not found: " + clientId));
     }
 
-    private ClientResponse toResponse(KeycloakClientRepresentation client) {
+    private ClientResponse toResponse(IdentityProviderClientRepresentation client) {
         return new ClientResponse(
                 client.id(),
                 client.clientId(),

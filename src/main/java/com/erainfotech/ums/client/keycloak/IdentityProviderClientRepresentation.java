@@ -2,7 +2,7 @@ package com.erainfotech.ums.client.keycloak;
 
 import java.util.List;
 
-public record KeycloakClientRepresentation(
+public record IdentityProviderClientRepresentation(
         String id,
         String clientId,
         String name,

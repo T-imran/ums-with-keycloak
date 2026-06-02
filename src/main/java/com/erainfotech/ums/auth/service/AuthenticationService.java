@@ -4,8 +4,8 @@ import com.erainfotech.ums.auth.dto.LoginRequest;
 import com.erainfotech.ums.auth.dto.LogoutRequest;
 import com.erainfotech.ums.auth.dto.RefreshTokenRequest;
 import com.erainfotech.ums.auth.dto.TokenResponse;
-import com.erainfotech.ums.client.keycloak.KeycloakAuthenticationClient;
-import com.erainfotech.ums.config.KeycloakAuthProperties;
+import com.erainfotech.ums.client.keycloak.IdentityProviderAuthenticationClient;
+import com.erainfotech.ums.config.IdentityAuthProperties;
 import com.erainfotech.ums.exception.BusinessException;
 import java.util.Collection;
 import java.util.Map;
@@ -18,8 +18,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 @RequiredArgsConstructor
 public class AuthenticationService {
 
-    private final KeycloakAuthenticationClient keycloakAuthenticationClient;
-    private final KeycloakAuthProperties keycloakAuthProperties;
+    private final IdentityProviderAuthenticationClient keycloakAuthenticationClient;
+    private final IdentityAuthProperties keycloakAuthProperties;
     private final JwtDecoder jwtDecoder;
 
     public TokenResponse login(LoginRequest request) {

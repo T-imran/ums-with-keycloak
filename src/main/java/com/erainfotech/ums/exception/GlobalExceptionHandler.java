@@ -20,6 +20,12 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage(), request);
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleUserNotFound(UserNotFoundException exception,
+                                                               HttpServletRequest request) {
+        return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage(), request);
+    }
+
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiErrorResponse> handleBusiness(BusinessException exception,
                                                            HttpServletRequest request) {
@@ -29,6 +35,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IntegrationException.class)
     public ResponseEntity<ApiErrorResponse> handleIntegration(IntegrationException exception,
                                                               HttpServletRequest request) {
+        return buildResponse(HttpStatus.BAD_GATEWAY, exception.getMessage(), request);
+    }
+
+    @ExceptionHandler(KeycloakCommunicationException.class)
+    public ResponseEntity<ApiErrorResponse> handleIdentityProviderCommunication(KeycloakCommunicationException exception,
+                                                                                HttpServletRequest request) {
         return buildResponse(HttpStatus.BAD_GATEWAY, exception.getMessage(), request);
     }
 

@@ -37,7 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/me").authenticated()
-                        .requestMatchers("/api/v1/users/**", "/api/v1/roles/**", "/api/v1/clients/**").authenticated()
+                        .requestMatchers("/api/v1/users/**", "/api/v1/roles/**", "/api/v1/clients/**", "/api/v1/login-attempts/**").authenticated()
                         .anyRequest().authenticated())
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(authenticationEntryPoint)
@@ -53,7 +53,7 @@ public class SecurityConfig {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setPrincipalClaimName("preferred_username");
         converter.setJwtGrantedAuthoritiesConverter(
-                new KeycloakJwtRolesConverter(appSecurityProperties.roleSourceClients()));
+                new ClientRolesJwtConverter(appSecurityProperties.roleSourceClients()));
         return converter;
     }
 

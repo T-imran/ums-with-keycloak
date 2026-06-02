@@ -8,8 +8,8 @@ import static org.mockito.Mockito.when;
 
 import com.erainfotech.ums.auth.dto.LoginRequest;
 import com.erainfotech.ums.auth.dto.TokenResponse;
-import com.erainfotech.ums.client.keycloak.KeycloakAuthenticationClient;
-import com.erainfotech.ums.config.KeycloakAuthProperties;
+import com.erainfotech.ums.client.keycloak.IdentityProviderAuthenticationClient;
+import com.erainfotech.ums.config.IdentityAuthProperties;
 import com.erainfotech.ums.exception.BusinessException;
 import java.time.Instant;
 import java.util.List;
@@ -26,7 +26,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 class AuthenticationServiceTest {
 
     @Mock
-    private KeycloakAuthenticationClient keycloakAuthenticationClient;
+    private IdentityProviderAuthenticationClient keycloakAuthenticationClient;
 
     @Mock
     private JwtDecoder jwtDecoder;
@@ -35,12 +35,12 @@ class AuthenticationServiceTest {
 
     @BeforeEach
     void setUp() {
-        KeycloakAuthProperties properties = new KeycloakAuthProperties(
+        IdentityAuthProperties properties = new IdentityAuthProperties(
                 "http://localhost:8080",
                 "bank-asia",
                 Map.of(
                         "ums-ui",
-                        new KeycloakAuthProperties.PublicClientProperties("ums-admin-app")));
+                        new IdentityAuthProperties.PublicClientProperties("ums-admin-app")));
         authenticationService = new AuthenticationService(
                 keycloakAuthenticationClient,
                 properties,

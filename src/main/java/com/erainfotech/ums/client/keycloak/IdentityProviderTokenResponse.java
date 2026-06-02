@@ -1,6 +1,6 @@
 package com.erainfotech.ums.client.keycloak;
 
-public record KeycloakTokenResponse(
+public record IdentityProviderTokenResponse(
         String access_token,
         long expires_in
 ) {

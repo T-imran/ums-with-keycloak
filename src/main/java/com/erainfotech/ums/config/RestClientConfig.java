@@ -8,7 +8,7 @@ import org.springframework.web.client.RestClient;
 public class RestClientConfig {
 
     @Bean
-    RestClient keycloakRestClient(RestClient.Builder builder, KeycloakAdminProperties properties) {
+    RestClient keycloakRestClient(RestClient.Builder builder, IdentityAdminProperties properties) {
         return builder
                 .baseUrl(properties.serverUrl())
                 .defaultHeader("Accept", "application/json")

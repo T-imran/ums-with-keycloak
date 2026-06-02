@@ -9,7 +9,7 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 @ConfigurationProperties(prefix = "app.keycloak.auth")
-public record KeycloakAuthProperties(
+public record IdentityAuthProperties(
         @NotBlank String serverUrl,
         @NotBlank String realm,
         @NotEmpty Map<String, PublicClientProperties> clients

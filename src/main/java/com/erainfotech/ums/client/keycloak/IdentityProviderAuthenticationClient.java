@@ -1,7 +1,7 @@
 package com.erainfotech.ums.client.keycloak;
 
 import com.erainfotech.ums.auth.dto.TokenResponse;
-import com.erainfotech.ums.config.KeycloakAuthProperties;
+import com.erainfotech.ums.config.IdentityAuthProperties;
 import com.erainfotech.ums.exception.IntegrationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -13,10 +13,10 @@ import org.springframework.web.client.RestClient;
 
 @Component
 @RequiredArgsConstructor
-public class KeycloakAuthenticationClient {
+public class IdentityProviderAuthenticationClient {
 
     private final RestClient keycloakRestClient;
-    private final KeycloakAuthProperties properties;
+    private final IdentityAuthProperties properties;
 
     public TokenResponse login(String clientId, String username, String password) {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();

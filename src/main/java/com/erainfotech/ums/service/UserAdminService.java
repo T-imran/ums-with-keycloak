@@ -1,8 +1,8 @@
 package com.erainfotech.ums.service;
 
-import com.erainfotech.ums.client.keycloak.KeycloakAdminClientService;
-import com.erainfotech.ums.client.keycloak.KeycloakCredentialRepresentation;
-import com.erainfotech.ums.client.keycloak.KeycloakUserRepresentation;
+import com.erainfotech.ums.client.keycloak.IdentityProviderAdminClientService;
+import com.erainfotech.ums.client.keycloak.IdentityProviderCredentialRepresentation;
+import com.erainfotech.ums.client.keycloak.IdentityProviderUserRepresentation;
 import com.erainfotech.ums.dto.CreateUserRequest;
 import com.erainfotech.ums.dto.ResetPasswordRequest;
 import com.erainfotech.ums.dto.UpdateUserRequest;
@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.core.ParameterizedTypeReference;
@@ -25,10 +26,10 @@ public class UserAdminService {
 
     private static final Pattern USER_ID_PATTERN = Pattern.compile(".*/users/([^/]+)$");
 
-    private final KeycloakAdminClientService keycloakAdminClientService;
+    private final IdentityProviderAdminClientService keycloakAdminClientService;
     private final RoleAdminService roleAdminService;
 
-    public UserAdminService(KeycloakAdminClientService keycloakAdminClientService,
+    public UserAdminService(IdentityProviderAdminClientService keycloakAdminClientService,
                             RoleAdminService roleAdminService) {
         this.keycloakAdminClientService = keycloakAdminClientService;
         this.roleAdminService = roleAdminService;
@@ -42,7 +43,7 @@ public class UserAdminService {
         body.put("lastName", request.lastName());
         body.put("enabled", request.enabled());
         body.put("emailVerified", Boolean.FALSE);
-        body.put("credentials", List.of(new KeycloakCredentialRepresentation(
+        body.put("credentials", List.of(new IdentityProviderCredentialRepresentation(
                 "password",
                 request.password(),
                 request.temporaryPassword())));
@@ -58,7 +59,7 @@ public class UserAdminService {
     }
 
     public List<UserResponse> listUsers(String search) {
-        List<KeycloakUserRepresentation> users = keycloakAdminClientService.get(
+        List<IdentityProviderUserRepresentation> users = keycloakAdminClientService.get(
                 "/admin/realms/{realm}/users?search={search}",
                 new ParameterizedTypeReference<>() {
                 },
@@ -73,9 +74,9 @@ public class UserAdminService {
     }
 
     public UserResponse getUser(String userId) {
-        KeycloakUserRepresentation user = keycloakAdminClientService.get(
+        IdentityProviderUserRepresentation user = keycloakAdminClientService.get(
                 "/admin/realms/{realm}/users/{userId}",
-                KeycloakUserRepresentation.class,
+                IdentityProviderUserRepresentation.class,
                 keycloakAdminClientService.realm(),
                 userId);
 
@@ -87,7 +88,7 @@ public class UserAdminService {
     }
 
     public UserResponse updateUser(String userId, UpdateUserRequest request) {
-        KeycloakUserRepresentation existing = requireUser(userId);
+        IdentityProviderUserRepresentation existing = requireUser(userId);
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("username", existing.username());
         body.put("email", request.email());
@@ -103,7 +104,7 @@ public class UserAdminService {
     }
 
     public UserResponse updateStatus(String userId, UserStatusUpdateRequest request) {
-        KeycloakUserRepresentation existing = requireUser(userId);
+        IdentityProviderUserRepresentation existing = requireUser(userId);
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("username", existing.username());
         body.put("email", existing.email());
@@ -122,7 +123,7 @@ public class UserAdminService {
         requireUser(userId);
         keycloakAdminClientService.put(
                 "/admin/realms/{realm}/users/{userId}/reset-password",
-                new KeycloakCredentialRepresentation("password", request.password(), request.temporary()),
+                new IdentityProviderCredentialRepresentation("password", request.password(), request.temporary()),
                 keycloakAdminClientService.realm(),
                 userId);
     }
@@ -135,10 +136,10 @@ public class UserAdminService {
                 userId);
     }
 
-    private KeycloakUserRepresentation requireUser(String userId) {
-        KeycloakUserRepresentation user = keycloakAdminClientService.get(
+    private IdentityProviderUserRepresentation requireUser(String userId) {
+        IdentityProviderUserRepresentation user = keycloakAdminClientService.get(
                 "/admin/realms/{realm}/users/{userId}",
-                KeycloakUserRepresentation.class,
+                IdentityProviderUserRepresentation.class,
                 keycloakAdminClientService.realm(),
                 userId);
         if (user == null) {
@@ -147,7 +148,7 @@ public class UserAdminService {
         return user;
     }
 
-    private UserResponse toResponse(KeycloakUserRepresentation user, java.util.Set<String> roles) {
+    private UserResponse toResponse(IdentityProviderUserRepresentation user, Set<String> roles) {
         return new UserResponse(
                 user.id(),
                 user.username(),
@@ -155,7 +156,18 @@ public class UserAdminService {
                 user.firstName(),
                 user.lastName(),
                 Boolean.TRUE.equals(user.enabled()),
-                roles);
+                roles,
+                copyAttributes(user.attributes()));
+    }
+
+    private Map<String, List<String>> copyAttributes(Map<String, List<String>> attributes) {
+        if (attributes == null || attributes.isEmpty()) {
+            return Map.of();
+        }
+
+        Map<String, List<String>> copy = new LinkedHashMap<>();
+        attributes.forEach((key, value) -> copy.put(key, value == null ? List.of() : List.copyOf(value)));
+        return Collections.unmodifiableMap(copy);
     }
 
     private String extractUserId(URI location) {

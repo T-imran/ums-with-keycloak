@@ -1,7 +1,7 @@
 package com.erainfotech.ums.service;
 
-import com.erainfotech.ums.client.keycloak.KeycloakAdminClientService;
-import com.erainfotech.ums.client.keycloak.KeycloakRoleRepresentation;
+import com.erainfotech.ums.client.keycloak.IdentityProviderAdminClientService;
+import com.erainfotech.ums.client.keycloak.IdentityProviderRoleRepresentation;
 import com.erainfotech.ums.dto.CreateRealmRoleRequest;
 import com.erainfotech.ums.dto.RealmRoleResponse;
 import com.erainfotech.ums.dto.UpdateUserRolesRequest;
@@ -18,9 +18,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class RoleAdminService {
 
-    private final KeycloakAdminClientService keycloakAdminClientService;
+    private final IdentityProviderAdminClientService keycloakAdminClientService;
 
-    public RoleAdminService(KeycloakAdminClientService keycloakAdminClientService) {
+    public RoleAdminService(IdentityProviderAdminClientService keycloakAdminClientService) {
         this.keycloakAdminClientService = keycloakAdminClientService;
     }
 
@@ -33,16 +33,16 @@ public class RoleAdminService {
                 body,
                 keycloakAdminClientService.realm());
 
-        KeycloakRoleRepresentation role = keycloakAdminClientService.get(
+        IdentityProviderRoleRepresentation role = keycloakAdminClientService.get(
                 "/admin/realms/{realm}/roles/{roleName}",
-                KeycloakRoleRepresentation.class,
+                IdentityProviderRoleRepresentation.class,
                 keycloakAdminClientService.realm(),
                 request.name());
         return toResponse(role);
     }
 
     public List<RealmRoleResponse> listRealmRoles() {
-        List<KeycloakRoleRepresentation> roles = keycloakAdminClientService.get(
+        List<IdentityProviderRoleRepresentation> roles = keycloakAdminClientService.get(
                 "/admin/realms/{realm}/roles",
                 new ParameterizedTypeReference<>() {
                 },
@@ -74,7 +74,7 @@ public class RoleAdminService {
     }
 
     public Set<String> getUserRealmRoles(String userId) {
-        List<KeycloakRoleRepresentation> roles = keycloakAdminClientService.get(
+        List<IdentityProviderRoleRepresentation> roles = keycloakAdminClientService.get(
                 "/admin/realms/{realm}/users/{userId}/role-mappings/realm",
                 new ParameterizedTypeReference<>() {
                 },
@@ -85,11 +85,11 @@ public class RoleAdminService {
             return Collections.emptySet();
         }
 
-        return roles.stream().map(KeycloakRoleRepresentation::name).map(this::normalizeRole).collect(java.util.stream.Collectors.toSet());
+        return roles.stream().map(IdentityProviderRoleRepresentation::name).map(this::normalizeRole).collect(java.util.stream.Collectors.toSet());
     }
 
     private List<Map<String, Object>> resolveRoleMappings(Set<String> requestedRoles) {
-        List<KeycloakRoleRepresentation> realmRoles = keycloakAdminClientService.get(
+        List<IdentityProviderRoleRepresentation> realmRoles = keycloakAdminClientService.get(
                 "/admin/realms/{realm}/roles",
                 new ParameterizedTypeReference<>() {
                 },
@@ -111,7 +111,7 @@ public class RoleAdminService {
         return matchingRoles;
     }
 
-    private RealmRoleResponse toResponse(KeycloakRoleRepresentation role) {
+    private RealmRoleResponse toResponse(IdentityProviderRoleRepresentation role) {
         return new RealmRoleResponse(role.id(), normalizeRole(role.name()), role.description());
     }
 
